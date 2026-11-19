@@ -1,0 +1,61 @@
+#iter = 0 | obj = INFEASIBLE(934/1000) | time = 2.0214s | op = Partial Initialization
+#iter = 344 | obj = 54913 | completion = 79622 | time = 2.1788s | op = Random Removal + Two Regret Insertion
+#iter = 347 | obj = 54910 | completion = 79622 | time = 2.1789s | op = Random Removal + Two Regret Insertion
+#iter = 367 | obj = 54896 | completion = 79622 | time = 2.1802s | op = Random Removal + Two Regret Insertion
+#iter = 374 | obj = 54890 | completion = 79622 | time = 2.1807s | op = Random Removal + Two Regret Insertion
+#iter = 377 | obj = 54878 | completion = 79622 | time = 2.1810s | op = Random Removal + Two Regret Insertion
+#iter = 379 | obj = 54868 | completion = 79622 | time = 2.1812s | op = Worst Removal + Two Regret Insertion
+#iter = 409 | obj = 54858 | completion = 79622 | time = 2.1841s | op = Random Removal + Two Regret Insertion
+#iter = 423 | obj = 54854 | completion = 79622 | time = 2.1854s | op = Random Removal + Two Regret Insertion
+#iter = 424 | obj = 54852 | completion = 79622 | time = 2.1856s | op = Random Removal + Two Regret Insertion
+#iter = 425 | obj = 54850 | completion = 79622 | time = 2.1858s | op = Random Removal + Two Regret Insertion
+#iter = 427 | obj = 54847 | completion = 79622 | time = 2.1860s | op = Random Removal + Two Regret Insertion
+#iter = 467 | obj = 54834 | completion = 79622 | time = 2.1893s | op = Random Removal + Greedy Insertion
+#iter = 472 | obj = 54825 | completion = 79622 | time = 2.1899s | op = Random Removal + Two Regret Insertion
+#iter = 478 | obj = 54818 | completion = 79622 | time = 2.1904s | op = Random Removal + Two Regret Insertion
+#iter = 479 | obj = 54806 | completion = 79622 | time = 2.1905s | op = Random Removal + Greedy Insertion
+#iter = 822 | obj = 54747 | completion = 79622 | time = 2.2223s | op = Random Removal + Two Regret Insertion
+#iter = 832 | obj = 54745 | completion = 79622 | time = 2.2229s | op = Random Removal + Greedy Insertion
+#iter = 885 | obj = 54744 | completion = 79622 | time = 2.2269s | op = Random Removal + Two Regret Insertion
+#iter = 1153 | obj = 54718 | completion = 79622 | time = 2.2476s | op = Segment Removal + Two Regret Insertion
+#iter = 2589 | obj = 54709 | completion = 79622 | time = 2.3705s | op = Random Removal + Two Regret Insertion
+#iter = 2591 | obj = 54693 | completion = 79622 | time = 2.3707s | op = Random Removal + Two Regret Insertion
+#iter = 2594 | obj = 54689 | completion = 79622 | time = 2.3710s | op = Random Removal + Greedy Insertion
+#iter = 2599 | obj = 54686 | completion = 79622 | time = 2.3713s | op = Random Removal + Two Regret Insertion
+#iter = 2600 | obj = 54682 | completion = 79622 | time = 2.3715s | op = Segment Removal + Two Regret Insertion
+#iter = 3979 | obj = 54681 | completion = 79622 | time = 2.4976s | op = Worst Removal + Two Regret Insertion
+#iter = 3984 | obj = 54656 | completion = 79622 | time = 2.4981s | op = Random Removal + Two Regret Insertion
+#iter = 4012 | obj = 54639 | completion = 79622 | time = 2.5004s | op = Random Removal + Greedy Insertion
+#iter = 6265 | obj = 54638 | completion = 79622 | time = 2.6904s | op = Random Removal + Two Regret Insertion
+#iter = 6268 | obj = 54633 | completion = 79622 | time = 2.6906s | op = Random Removal + Greedy Insertion
+#iter = 6274 | obj = 54630 | completion = 79622 | time = 2.6911s | op = Random Removal + Two Regret Insertion
+#iter = 6277 | obj = 54616 | completion = 79622 | time = 2.6913s | op = Random Removal + Greedy Insertion
+#iter = 6467 | obj = 54603 | completion = 79622 | time = 2.7051s | op = Random Removal + Greedy Insertion
+#iter = 6873 | obj = 54587 | completion = 79622 | time = 2.7438s | op = Random Removal + Two Regret Insertion
+#iter = 6890 | obj = 54584 | completion = 79622 | time = 2.7451s | op = Random Removal + Two Regret Insertion
+#iter = 8655 | obj = 54582 | completion = 79622 | time = 2.9010s | op = Random Removal + Two Regret Insertion
+#iter = 8800 | obj = 54562 | completion = 79622 | time = 2.9131s | op = Random Removal + Greedy Insertion
+#iter = 8907 | obj = 54545 | completion = 79622 | time = 2.9221s | op = Random Removal + Greedy Insertion
+#iter = 9759 | obj = 54544 | completion = 79622 | time = 2.9915s | op = Random Removal + Greedy Insertion
+#iter = 9788 | obj = 54541 | completion = 79622 | time = 2.9941s | op = Random Removal + Two Regret Insertion
+#iter = 12479 | obj = 54536 | completion = 79622 | time = 3.2228s | op = Random Removal + Two Regret Insertion
+#iter = 12480 | obj = 54534 | completion = 79622 | time = 3.2228s | op = Random Removal + Greedy Insertion
+#iter = 12498 | obj = 54520 | completion = 79622 | time = 3.2247s | op = Random Removal + Two Regret Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 213199 | Total Time = 20.0000s
+Final Best Objective = 54520
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        125096      38          97342.00      0.7454      
+Worst Removal         59535       2           21264.00      0.4246      
+Segment Removal       28568       2           5400.00       0.2345      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      92520       12          46058.00      0.4616      
+Two Regret Insertion  120679      30          77948.00      0.6712      
+=============================================================

@@ -1,0 +1,20 @@
+#iter = 0 | obj = 26464 | completion = 30283 | time = 0.0007s | op = Initial Heuristic
+#iter = 10 | obj = 26453 | completion = 30283 | time = 0.0008s | op = Segment Removal + Two Regret Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 1872587 | Total Time = 20.0000s
+Final Best Objective = 26453
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        627331      0           627122.00     1.0000      
+Worst Removal         627659      0           627659.00     1.0000      
+Segment Removal       617597      1           608434.00     0.9882      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      932494      0           923104.00     0.9926      
+Two Regret Insertion  940093      1           940111.00     1.0000      
+=============================================================

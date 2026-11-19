@@ -1,0 +1,21 @@
+#iter = 0 | obj = INFEASIBLE(991/1000) | time = 2.0184s | op = Partial Initialization
+#iter = 92 | obj = 60818 | completion = 81016 | time = 2.0291s | op = Segment Removal + Greedy Insertion
+#iter = 190 | obj = 60816 | completion = 81016 | time = 2.0345s | op = Random Removal + Greedy Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 298269 | Total Time = 20.0000s
+Final Best Objective = 60816
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        105015      1           105112.00     0.9934      
+Worst Removal         104650      0           104650.00     1.0000      
+Segment Removal       88604       1           75165.00      0.8398      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      142115      2           129048.00     0.8981      
+Two Regret Insertion  156154      0           155879.00     0.9912      
+=============================================================

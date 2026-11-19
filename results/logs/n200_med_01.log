@@ -1,0 +1,33 @@
+#iter = 0 | obj = 25549 | completion = 30351 | time = 0.0016s | op = Initial Heuristic
+#iter = 3 | obj = 25548 | completion = 30351 | time = 0.0017s | op = Segment Removal + Two Regret Insertion
+#iter = 4 | obj = 25545 | completion = 30351 | time = 0.0017s | op = Random Removal + Greedy Insertion
+#iter = 10 | obj = 25520 | completion = 30351 | time = 0.0018s | op = Random Removal + Greedy Insertion
+#iter = 11 | obj = 25495 | completion = 30351 | time = 0.0018s | op = Segment Removal + Greedy Insertion
+#iter = 12 | obj = 25489 | completion = 30351 | time = 0.0018s | op = Random Removal + Greedy Insertion
+#iter = 21 | obj = 25439 | completion = 30351 | time = 0.0019s | op = Segment Removal + Greedy Insertion
+#iter = 26 | obj = 25435 | completion = 30351 | time = 0.0019s | op = Random Removal + Greedy Insertion
+#iter = 31 | obj = 25431 | completion = 30351 | time = 0.0020s | op = Worst Removal + Greedy Insertion
+#iter = 34 | obj = 25426 | completion = 30351 | time = 0.0020s | op = Random Removal + Two Regret Insertion
+#iter = 41 | obj = 25410 | completion = 30351 | time = 0.0022s | op = Random Removal + Greedy Insertion
+#iter = 42 | obj = 25385 | completion = 30351 | time = 0.0022s | op = Random Removal + Greedy Insertion
+#iter = 149 | obj = 25382 | completion = 30351 | time = 0.0035s | op = Random Removal + Two Regret Insertion
+#iter = 502 | obj = 25381 | completion = 30351 | time = 0.0080s | op = Random Removal + Two Regret Insertion
+#iter = 554 | obj = 25370 | completion = 30351 | time = 0.0086s | op = Random Removal + Two Regret Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 1527697 | Total Time = 20.0000s
+Final Best Objective = 25370
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        567274      10          475068.00     0.8035      
+Worst Removal         687509      1           696960.00     1.0056      
+Segment Removal       272914      3           111316.00     0.4017      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      719112      9           567000.00     0.7665      
+Two Regret Insertion  808585      5           716344.00     0.8933      
+=============================================================

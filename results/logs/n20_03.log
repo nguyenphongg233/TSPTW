@@ -1,0 +1,19 @@
+#iter = 0 | obj = 7589 | completion = 8055 | time = 0.0009s | op = Initial Heuristic
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 24989362 | Total Time = 20.0000s
+Final Best Objective = 7589
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        8327080     0           8327080.00    1.0000      
+Worst Removal         8335025     0           8335025.00    1.0000      
+Segment Removal       8327257     0           8327257.00    1.0000      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      12494288    0           12494288.00   1.0000      
+Two Regret Insertion  12495074    0           12495074.00   1.0000      
+=============================================================

@@ -1,0 +1,31 @@
+#iter = 0 | obj = 60643 | completion = 80482 | time = 1.4298s | op = Initial Heuristic
+#iter = 7 | obj = 60641 | completion = 80482 | time = 1.4300s | op = Random Removal + Two Regret Insertion
+#iter = 9 | obj = 60611 | completion = 80482 | time = 1.4301s | op = Random Removal + Two Regret Insertion
+#iter = 17 | obj = 60559 | completion = 80482 | time = 1.4304s | op = Segment Removal + Greedy Insertion
+#iter = 21 | obj = 60546 | completion = 80482 | time = 1.4306s | op = Random Removal + Two Regret Insertion
+#iter = 28 | obj = 60541 | completion = 80482 | time = 1.4310s | op = Segment Removal + Two Regret Insertion
+#iter = 30 | obj = 60534 | completion = 80482 | time = 1.4312s | op = Random Removal + Two Regret Insertion
+#iter = 38 | obj = 60528 | completion = 80482 | time = 1.4315s | op = Segment Removal + Two Regret Insertion
+#iter = 54 | obj = 60527 | completion = 80482 | time = 1.4324s | op = Random Removal + Greedy Insertion
+#iter = 61 | obj = 60523 | completion = 80482 | time = 1.4329s | op = Segment Removal + Two Regret Insertion
+#iter = 65 | obj = 60507 | completion = 80482 | time = 1.4331s | op = Random Removal + Two Regret Insertion
+#iter = 100 | obj = 60502 | completion = 80482 | time = 1.4355s | op = Segment Removal + Two Regret Insertion
+#iter = 155 | obj = 60501 | completion = 80482 | time = 1.4400s | op = Random Removal + Two Regret Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 305394 | Total Time = 20.0000s
+Final Best Objective = 60501
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        106000      7           106320.00     0.9707      
+Worst Removal         105982      0           105982.00     1.0000      
+Segment Removal       93412       5           82684.00      0.8591      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      144778      2           131947.00     0.8630      
+Two Regret Insertion  160616      10          163039.00     1.0042      
+=============================================================

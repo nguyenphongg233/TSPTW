@@ -1,0 +1,35 @@
+#iter = 0 | obj = 59881 | completion = 80027 | time = 0.0073s | op = Initial Heuristic
+#iter = 2 | obj = 59872 | completion = 80027 | time = 0.0075s | op = Random Removal + Two Regret Insertion
+#iter = 7 | obj = 59868 | completion = 80027 | time = 0.0078s | op = Segment Removal + Two Regret Insertion
+#iter = 10 | obj = 59861 | completion = 80027 | time = 0.0080s | op = Random Removal + Two Regret Insertion
+#iter = 15 | obj = 59860 | completion = 80027 | time = 0.0082s | op = Segment Removal + Greedy Insertion
+#iter = 22 | obj = 59832 | completion = 80027 | time = 0.0086s | op = Segment Removal + Greedy Insertion
+#iter = 27 | obj = 59789 | completion = 80027 | time = 0.0089s | op = Random Removal + Greedy Insertion
+#iter = 31 | obj = 59784 | completion = 80027 | time = 0.0090s | op = Random Removal + Greedy Insertion
+#iter = 32 | obj = 59777 | completion = 80027 | time = 0.0090s | op = Random Removal + Greedy Insertion
+#iter = 35 | obj = 59776 | completion = 80027 | time = 0.0092s | op = Segment Removal + Greedy Insertion
+#iter = 47 | obj = 59757 | completion = 80027 | time = 0.0098s | op = Random Removal + Two Regret Insertion
+#iter = 56 | obj = 59747 | completion = 80027 | time = 0.0107s | op = Random Removal + Two Regret Insertion
+#iter = 59 | obj = 59745 | completion = 80027 | time = 0.0108s | op = Segment Removal + Greedy Insertion
+#iter = 61 | obj = 59734 | completion = 80027 | time = 0.0111s | op = Random Removal + Two Regret Insertion
+#iter = 112 | obj = 59728 | completion = 80027 | time = 0.0148s | op = Segment Removal + Two Regret Insertion
+#iter = 212 | obj = 59726 | completion = 80027 | time = 0.0221s | op = Random Removal + Two Regret Insertion
+#iter = 220 | obj = 59718 | completion = 80027 | time = 0.0227s | op = Random Removal + Two Regret Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 327371 | Total Time = 20.0000s
+Final Best Objective = 59718
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        112214      10          109560.00     0.9878      
+Worst Removal         115888      0           115888.00     1.0000      
+Segment Removal       99269       6           85093.00      0.8275      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      154911      7           139145.00     0.8803      
+Two Regret Insertion  172460      9           171396.00     0.9881      
+=============================================================

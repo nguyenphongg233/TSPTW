@@ -1,0 +1,29 @@
+#iter = 0 | obj = 24312 | completion = 29618 | time = 0.0008s | op = Initial Heuristic
+#iter = 5 | obj = 24305 | completion = 29618 | time = 0.0008s | op = Random Removal + Two Regret Insertion
+#iter = 8 | obj = 24275 | completion = 29618 | time = 0.0009s | op = Random Removal + Two Regret Insertion
+#iter = 15 | obj = 24224 | completion = 29618 | time = 0.0010s | op = Random Removal + Greedy Insertion
+#iter = 22 | obj = 24129 | completion = 29618 | time = 0.0011s | op = Random Removal + Greedy Insertion
+#iter = 45 | obj = 24101 | completion = 29618 | time = 0.0013s | op = Segment Removal + Two Regret Insertion
+#iter = 55 | obj = 24085 | completion = 29618 | time = 0.0014s | op = Worst Removal + Two Regret Insertion
+#iter = 57 | obj = 24078 | completion = 29618 | time = 0.0015s | op = Random Removal + Two Regret Insertion
+#iter = 59 | obj = 24074 | completion = 29618 | time = 0.0015s | op = Random Removal + Greedy Insertion
+#iter = 109 | obj = 24071 | completion = 29618 | time = 0.0021s | op = Random Removal + Two Regret Insertion
+#iter = 639 | obj = 24070 | completion = 29618 | time = 0.0092s | op = Random Removal + Greedy Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 1475436 | Total Time = 20.0000s
+Final Best Objective = 24070
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        648324      8           518266.00     0.7896      
+Worst Removal         473732      1           276058.00     0.5731      
+Segment Removal       353380      1           154403.00     0.5199      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      628851      4           337111.00     0.4998      
+Two Regret Insertion  846585      6           611616.00     0.7451      
+=============================================================

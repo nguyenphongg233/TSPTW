@@ -1,0 +1,24 @@
+#iter = 0 | obj = 44533 | completion = 54721 | time = 0.0025s | op = Initial Heuristic
+#iter = 14 | obj = 44530 | completion = 54721 | time = 0.0028s | op = Random Removal + Two Regret Insertion
+#iter = 26 | obj = 44518 | completion = 54721 | time = 0.0032s | op = Segment Removal + Greedy Insertion
+#iter = 37 | obj = 44511 | completion = 54721 | time = 0.0037s | op = Random Removal + Two Regret Insertion
+#iter = 63 | obj = 44508 | completion = 54721 | time = 0.0044s | op = Random Removal + Two Regret Insertion
+#iter = 73 | obj = 44504 | completion = 54721 | time = 0.0047s | op = Random Removal + Greedy Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 629884 | Total Time = 20.0000s
+Final Best Objective = 44504
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        209114      4           197922.00     0.9523      
+Worst Removal         221572      0           221572.00     1.0000      
+Segment Removal       199198      1           180369.00     0.8957      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      305087      2           280842.00     0.9178      
+Two Regret Insertion  324797      3           319021.00     0.9788      
+=============================================================

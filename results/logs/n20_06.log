@@ -1,0 +1,20 @@
+#iter = 0 | obj = 5479 | completion = 5899 | time = 0.0006s | op = Initial Heuristic
+#iter = 3 | obj = 5430 | completion = 5899 | time = 0.0006s | op = Random Removal + Two Regret Insertion
+
+==================== OPERATOR STATISTICS ====================
+Total Iterations = 29286552 | Total Time = 20.0000s
+Final Best Objective = 5430
+
+[Destroy Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Random Removal        9764980     1           9529289.00    0.9952      
+Worst Removal         10015128    0           10015128.00   1.0000      
+Segment Removal       9506444     0           9038363.00    0.9576      
+
+[Repair Operators]
+Name                  Uses        BestFound   TotalScore    FinalWeight 
+------------------------------------------------------------------------
+Greedy Insertion      14326756    0           13673167.00   0.9693      
+Two Regret Insertion  14959796    1           14909613.00   1.0000      
+=============================================================

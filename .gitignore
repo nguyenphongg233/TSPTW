@@ -1,6 +1,7 @@
 docs/
 build/
 data/
+results/logs/
 .venv/
 .DS_Store
 

@@ -1,163 +1,170 @@
 # TSP with Time Windows (Open-TSPTW) Solver
 
-Dự án môn **IT4663 — Tối ưu lập kế hoạch (HUST)**: Xây dựng bộ giải bài toán **Traveling Salesman Problem with Time Windows (biến thể đường đi mở - Open Route)** bằng **C++20 (Heuristic & ALNS)** và đối chiếu thực nghiệm với **Google OR-Tools CP-SAT**.
+Dự án môn **IT4663 — Tối ưu lập kế hoạch (HUST)**: Xây dựng bộ giải bài toán **Traveling Salesman Problem with Time Windows (biến thể đường đi mở - Open Route)** bằng **C++20 (Adaptive Large Neighborhood Search - ALNS)** và đối chiếu thực nghiệm với **Google OR-Tools CP-SAT**.
 
 ---
 
-## 1. Mô hình bài toán
+## 1. Mô tả bài toán (Open-TSPTW)
 
-- **Đỉnh xuất phát (Depot):** Mã `0` (xuất phát tại thời điểm $F_0 = 0$).
-- **Khách hàng:** $N$ khách hàng ($N \le 1000$), đánh số từ `1` đến `N`.
-- Mỗi khách hàng $i \in \{1..N\}$ có:
+- **Đỉnh xuất phát (Depot):** Mã `0`, xe xuất phát tại thời điểm $F_0 = 0$.
+- **Khách hàng:** $N$ khách hàng ($N \le 1000$), đánh số từ `1` đến `N`. Mỗi khách hàng phải được phục vụ đúng 1 lần.
+- **Thông số mỗi khách hàng $i \in \{1..N\}$:**
   - $e_i$: Thời điểm sớm nhất được phép bắt đầu phục vụ.
   - $l_i$: Thời điểm muộn nhất phải **hoàn thành** phục vụ.
-  - $s_i$: Thời gian phục vụ tại khách hàng $i$.
-- Ma trận $t_{u, v}$ kích thước $(N+1) \times (N+1)$: Thời gian/chi phí di chuyển từ điểm $u$ đến điểm $v$.
-- **Quy tắc di chuyển trên tuyến đường** $s = (s_1, s_2, \dots, s_N)$ với $s_0 = 0$:
+  - $s_i$: Thời gian phục vụ tại điểm $i$.
+- **Ma trận di chuyển:** $t_{u, v}$ kích thước $(N+1) \times (N+1)$ là thời gian/chi phí di chuyển từ điểm $u$ đến điểm $v$.
+- **Công thức lan truyền thời gian** trên tuyến đường $s = (s_1, s_2, \dots, s_N)$ với $s_0 = 0$:
   $$\begin{aligned}
-  A_k &= F_{k-1} + t_{s_{k-1}, s_k} && \text{(Thời điểm đến)} \\
-  B_k &= \max(A_k, e_{s_k}) && \text{(Thời điểm bắt đầu phục vụ — chờ nếu đến sớm)} \\
-  F_k &= B_k + s_{s_k} && \text{(Thời điểm hoàn thành phục vụ)}
+  A_k &= F_{k-1} + t_{s_{k-1}, s_k} && \text{(Thời điểm đến khách hàng } s_k\text{)} \\
+  B_k &= \max(A_k, e_{s_k}) && \text{(Thời điểm bắt đầu phục vụ — phải chờ nếu } A_k < e_{s_k}\text{)} \\
+  F_k &= B_k + s_{s_k} && \text{(Thời điểm hoàn thành phục vụ tại } s_k\text{)}
   \end{aligned}$$
 - **Điều kiện khả thi:** $s$ là một hoán vị của $\{1, 2, \dots, N\}$ và thỏa mãn:
   $$F_k \le l_{s_k}, \quad \forall k \in \{1, \dots, N\}$$
-- **Hàm mục tiêu:** Tối thiểu hóa tổng thời gian di chuyển (xe **không cần quay về depot `0`** sau khi phục vụ $s_N$):
+- **Hàm mục tiêu (Open Route):** Xe **không cần quay về depot `0`** sau khi phục vụ khách hàng cuối cùng $s_N$:
   $$\min \text{travelCost} = \sum_{k=1}^{N} t_{s_{k-1}, s_k}$$
 
 ---
 
-## 2. Cấu trúc thư mục & Trạng thái triển khai
+## 2. Thiết kế thuật toán ALNS hiện tại
+
+Thuật toán **Adaptive Large Neighborhood Search (ALNS)** được cài đặt trong [include/alns.hpp](file:///Users/nguyenphong/HUST/2026.1/IT4663_TULKH/TSPTW/include/alns.hpp) và [src/alns.cpp](file:///Users/nguyenphong/HUST/2026.1/IT4663_TULKH/TSPTW/src/alns.cpp) theo quy trình 4 thành phần:
+
+### 2.1. Khởi tạo nghiệm ban đầu (`buildInitialSolution`)
+- Kết hợp **Lookahead Nearest Feasible Neighbor** (ưu tiên các đỉnh không làm trễ hạn 25 đỉnh gấp nhất) và **Randomized Multi-Start Greedy Insertion** (xếp theo $l_i$, $(e_i+l_i)/2$, $e_i+s_i$ kèm nhiễu ngẫu nhiên và Ejection Repair).
+- Nếu chưa chèn đủ $N$ đỉnh ở bước khởi tạo, ALNS sẽ giữ lại phần tuyến khả thi lớn nhất cùng danh sách `uninserted` để tiếp tục sửa trong vòng lặp chính.
+
+### 2.2. Các toán tử Destroy (Tháo $q \in [2\%, 15\%]$ khách hàng)
+1. **`Random Removal`:** Xóa ngẫu nhiên $q$ khách hàng để tạo sự đa dạng cho không gian tìm kiếm.
+2. **`Worst Removal`:** Tính chi phí đi vòng $\text{detour}(i) = t_{\text{prev}, i} + t_{i, \text{next}} - t_{\text{prev}, \text{next}}$ (cộng nhiễu ngẫu nhiên), ưu tiên tháo các đỉnh đang gây tốn chi phí di chuyển lớn nhất.
+3. **`Segment Removal`:** Xóa một đoạn $q$ khách hàng liên tiếp trên tuyến để tái cấu trúc cục bộ một vùng hành trình.
+
+### 2.3. Các toán tử Repair (Lắp lại các khách hàng vừa tháo)
+1. **`Greedy Insertion`:** Lần lượt chèn từng đỉnh vào vị trí khả thi tốt nhất theo điểm đánh giá kết hợp chi phí tăng thêm (`deltaCost`) và độ trễ đẩy về sau (`pushedDelay`).
+2. **`Two-Regret Insertion`:** Tính độ hối tiếc $\text{regret}(u) = \text{score}_2(u) - \text{score}_1(u)$ giữa vị trí tốt nhì và tốt nhất; ưu tiên chèn trước các đỉnh chỉ còn đúng 1 vị trí khả thi hoặc có `regret` lớn nhất để tránh bế tắc Time Window.
+- **Tối ưu tốc độ đánh giá vị trí chèn:** Dùng tìm kiếm nhị phân (`std::lower_bound` / `std::upper_bound`) trên mảng `finishTime` để thu hẹp khoảng vị trí hợp lệ $[minPos, maxPos]$ và cập nhật hậu tố `finishTime` cục bộ (`updatePartialFinish`).
+
+### 2.4. Điều phối thích nghi & Simulated Annealing
+- **Tìm kiếm 2 giai đoạn:**
+  - *Giai đoạn 1 (khi chưa tìm được nghiệm đủ $N$ khách):* Thưởng điểm cao cho phép biến làm giảm số đỉnh `uninserted`.
+  - *Giai đoạn 2 (khi đã có nghiệm khả thi):* Tối ưu `travelCost` trên `currentSol`, tách biệt hoàn toàn với `bestSol`.
+- **Chấp nhận nghiệm (Simulated Annealing):** Chấp nhận nghiệm tốt hơn ($\Delta < 0$) hoặc chấp nhận nghiệm xấu hơn với xác suất $e^{-\Delta / T}$ ($T$ giảm dần theo `coolingRate`).
+- **Adaptive Weights (Roulette Wheel):** Sau mỗi 50 vòng lặp, cập nhật trọng số `weight` của từng toán tử dựa trên tỷ lệ điểm thưởng `periodScore / periodUses`. Ghi log hội tụ (`#iter`, `obj`, `time`, `op`) và bảng thống kê từng toán tử vào `results/logs/`.
+
+---
+
+## 3. Cấu trúc thư mục
 
 ```text
 TSPTW/
-├── CMakeLists.txt                       # Cấu hình build C++20 (tsptw_core, tsptw, evaluator_test)
+├── CMakeLists.txt                       # Build C++20 (-O3 -Wall -Wextra)
 ├── README.md                            # Tài liệu tổng quan và kết quả thực nghiệm
 ├── include/
-│   ├── problem.hpp                      # [Đã xong] Struct Customer, Problem (flat 1D matrix)
-│   ├── solution.hpp                     # [Đã xong] Struct Solution (route, finishTime, print, debug)
-│   ├── evaluator.hpp                    # [Đã xong] Struct EvalResult, đánh giá O(N) & evaluateSuffix
-│   ├── utils.hpp                        # [Đã xong] Timer, TestGenConfig, SolverConfig, Dataset Generator
-│   ├── heuristic.hpp                    # [Đã xong] Khởi tạo nghiệm ban đầu (Randomized Multi-Start)
-│   ├── local_search.hpp                 # [Sắp làm] Các toán tử tìm kiếm cục bộ
-│   └── alns.hpp                         # [Đang làm] Thuật toán chính Adaptive Large Neighborhood Search
+│   ├── problem.hpp                      # Struct Customer, Problem (flat 1D travel matrix)
+│   ├── solution.hpp                     # Struct Solution (route, finishTime, print, debug)
+│   ├── evaluator.hpp                    # EvalResult, isValidPermutation, evaluateRoute, evaluateSuffix
+│   ├── utils.hpp                        # Timer, TestGenConfig, SolverConfig, Dataset Generator
+│   ├── heuristic.hpp                    # Khởi tạo nghiệm ban đầu (Randomized Multi-Start)
+│   └── alns.hpp                         # Cây kế thừa Operator, 5 toán tử và struct ALNS
 ├── src/
-│   ├── problem.cpp                      # [Đã xong] Parser đọc dữ liệu từ file .inp / istream
-│   ├── evaluator.cpp                    # [Đã xong] Kiểm tra hoán vị, Time Window & Incremental Suffix Eval
-│   ├── utils.cpp                        # [Đã xong] Bộ sinh 75 testcase đảm bảo 100% có nghiệm khả thi
-│   ├── heuristic.cpp                    # [Đã xong] Lookahead Nearest Neighbor + Randomized Greedy Insertion
-│   ├── main.cpp                         # [Đã xong] CLI điều phối (--gen, --bench, giải file lẻ)
-│   ├── cpsolver.py                      # [Đã xong] Bộ giải đối chiếu bằng Google OR-Tools CP-SAT
-│   ├── local_search.cpp                 # [Sắp làm]
-│   └── alns.cpp                         # [Sắp làm]
+│   ├── problem.cpp                      # Đọc dữ liệu từ file .inp / istream
+│   ├── evaluator.cpp                    # Kiểm tra hoán vị, Time Window & Incremental Suffix Eval
+│   ├── utils.cpp                        # Bộ sinh 75 testcase đảm bảo 100% có nghiệm khả thi
+│   ├── heuristic.cpp                    # Lookahead Nearest Neighbor + Randomized Greedy Insertion
+│   ├── alns.cpp                         # Cài đặt ALNS, 5 toán tử Destroy/Repair & ghi log
+│   ├── main.cpp                         # CLI (--gen, --bench đa luồng -j, giải file lẻ -t)
+│   └── cpsolver.py                      # Bộ giải đối chiếu đa nhân bằng Google OR-Tools CP-SAT
 ├── tests/
-│   └── evaluator_test.cpp               # [Đã xong] 9 Unit Tests cho Evaluator, Suffix Eval & Test Generator
+│   └── evaluator_test.cpp               # 9 Unit Tests cho Evaluator, Suffix Eval & Test Generator
 ├── data/
-│   ├── input/                           # Chứa 75 file .inp + bảng mốc tham chiếu reference_costs.csv
+│   ├── input/                           # 75 file .inp + reference_costs.csv
 │   └── output/
 │       ├── cpSolver/                    # Tuyến đường .out giải bởi OR-Tools CP-SAT
 │       ├── heuristic/                   # Tuyến đường .out giải bởi Heuristic C++
 │       └── alns/                        # Tuyến đường .out giải bởi ALNS C++
 └── results/
-    ├── cp_benchmark_results.csv         # Bảng thống kê kết quả chạy OR-Tools CP-SAT
-    ├── heuristic_benchmark_results.csv  # Bảng thống kê kết quả chạy Heuristic C++
-    └── alns_benchmark_results.csv       # Bảng thống kê kết quả chạy ALNS C++
+    ├── cp_benchmark_results.csv         # Kết quả chạy OR-Tools CP-SAT (30s/bài)
+    ├── heuristic_benchmark_results.csv  # Kết quả chạy Heuristic C++
+    ├── alns_benchmark_results.csv       # Kết quả chạy ALNS C++ (3s/bài)
+    └── logs/                            # Log hội tụ theo từng iteration & thống kê toán tử
 ```
 
 ---
 
-## 3. Bộ dữ liệu thực nghiệm (75 Testcases) & Đối chiếu Kết quả
+## 4. Tổng kết Benchmark trên 75 Testcases
 
-Bộ dữ liệu gồm **75 instances** được sinh tự động bằng phương pháp *Planted Semi-Greedy Route* (đảm bảo 100% testcase đều có nghiệm khả thi và lưu lại cận trên tham chiếu `RefCost` trong `data/input/reference_costs.csv`):
-1. **Bộ test nhỏ (30 files):** `n10_01..10.inp`, `n20_01..10.inp`, `n50_01..10.inp` (`windowSlack` từ `50`, `250` đến `1000`).
-2. **Bộ test lớn (45 files):** $N \in \{200, 500, 1000\} \times \{\text{tight } (60), \text{med } (350), \text{wide } (2000)\} \times 5 \text{ instances } (01..05)$.
+Bộ dữ liệu gồm **75 instances** (`30` bài nhỏ $N \in \{10, 20, 50\}$ và `45` bài lớn $N \in \{200, 500, 1000\}$ chia làm 3 mức độ rộng khung thời gian `tight=60`, `med=350`, `wide=2000`), kèm mốc tham chiếu khả thi `RefCost` trong `data/input/reference_costs.csv`.
 
-### 3.1. Bảng tổng hợp so sánh: `RefCost` vs `OR-Tools CP-SAT` vs `Heuristic C++`
+### 4.1. Tổng quan hiệu năng 3 bộ giải
 
-| Nhóm Test | Số bài | CP-SAT giải được | Heuristic C++ giải được | `RefCost` (TB) | `CPCost` (TB) | `HeuCost` (TB) | `Heu vs CP` (TB) | `Heu vs Ref` (TB) | Thời gian `CP` vs `Heu` |
-| :--- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| **`n10` (`01..10`)** | 10 | **10/10** (`OPT`) | **10/10** (`100%`) | 4,888 | 4,869 | **4,871** | **`+0.04%`** (9/10 = OPT) | `-0.35%` | `0.0023s` vs **`0.00004s`** |
-| **`n20` (`01..10`)** | 10 | **10/10** (`OPT`) | **10/10** (`100%`) | 7,535 | 7,386 | **7,396** | **`+0.14%`** (8/10 = OPT) | `-1.84%` | `0.0043s` vs **`0.00009s`** |
-| **`n50` (`01..10`)** | 10 | **10/10** (`OPT`) | **10/10** (`100%`) | 13,714 | 13,261 | **13,400** | **`+1.05%`** (5/10 = OPT) | `-2.29%` | `0.0788s` vs **`0.00026s`** |
-| **`n200_tight`** | 5 | **5/5** (`OPT`) | **5/5** (`100%`) | 27,076 | 27,065 | **27,069** | **`+0.016%`** (3/5 = OPT) | `-0.03%` | `0.1206s` vs **`0.0019s`** |
-| **`n200_med`** | 5 | **5/5** (`OPT`) | **5/5** (`100%`) | 26,767 | 25,403 | **25,673** | **`+1.06%`** | **`-4.13%`** | `4.2643s` vs **`0.0965s`** |
-| **`n200_wide`** | 5 | **0/5** (`TIMEOUT`) | **5/5** (`100%`) | 27,283 | — | **23,812** | **Heu THẮNG 5/5** | **`-12.74%`** | `20.04s` vs **`0.0298s`** |
-| **`n500_tight`** | 5 | **5/5** (`OPT`) | **5/5** (`100%`) | 42,600 | 42,515 | **42,582** | **`+0.16%`** | `-0.04%` | `6.4025s` vs **`0.0163s`** |
-| **`n500_med`** | 5 | **0/5** (`TIMEOUT`) | **2/5** (`40%`) | 42,818 | — | **41,056** | **Heu THẮNG 2/5** | **`-4.60%`** | `20.15s` vs `1.69s` |
-| **`n500_wide`** | 5 | **0/5** (`TIMEOUT`) | **3/5** (`60%`) | 43,486 | — | **38,607** | **Heu THẮNG 3/5** | **`-12.84%`** | `20.18s` vs `1.20s` |
-| **`n1000_tight`** | 5 | *(Chưa chạy)* | **3/5** (`60%`) | 60,420 | — | **60,072** | **Heu THẮNG 3/5** | `-0.08%` | — vs `0.19s` |
+| Tiêu chí | `OR-Tools CP-SAT` (`30s` / bài, đa nhân) | `Heuristic Khởi tạo` (C++20) | **`ALNS` (C++20, `3s` / bài)** |
+| :--- | :---: | :---: | :---: |
+| **Tỷ lệ giải khả thi** | `45 / 75` (`60.0%`) | `58 / 75` (`77.3%`) | **`75 / 75` (`100.0%`)** |
+| **Chất lượng trên 45 bài CP có nghiệm** | `39` `OPTIMAL`, `6` `FEASIBLE` | `25 / 45` bài bằng `CPCost` | **`45 / 45` bài bằng `100% CPCost` (`0.00% Gap`)** |
+| **30 bài CP `NOT_FEASIBLE` (`30s`)** | `0 / 30` bài giải được | `13 / 30` bài khả thi | **`30 / 30` bài khả thi** (giảm tới **`-26.36%`** vs `RefCost`) |
+| **Tổng thời gian chạy thực tế (75 bài)** | `243.81 giây` (5 procs $\times$ 3 workers) | `40.70 giây` (1 thread) | **`15.09 giây`** (15 threads) |
 
-### 3.2. Chi tiết trên bộ test `N = 200` và `N = 500`
+### 4.2. So sánh chi tiết theo từng nhóm Testcase
 
-| Instance | `RefCost` | `CPCost` (OR-Tools) | `CPTime` | `HeuCost` (C++) | `HeuTime` | `Heu vs CP` | `Heu vs Ref` |
+| Nhóm Test | Số bài | `RefCost` (TB) | `CPCost` (`30s`) | `HeuCost` (TB) | **`ALNSCost` (`3s`)** | **`ALNS vs CP`** | **`ALNS vs Ref`** |
 | :--- | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| `n200_tight_01` | 25,748 | **25,747** | `0.1039s` | **25,747** | `0.0019s` | **`+0.00%`** | `-0.00%` |
-| `n200_tight_02` | 26,464 | **26,453** | `0.2097s` | **26,464** | `0.0022s` | `+0.04%` | `+0.00%` |
-| `n200_tight_03` | 28,479 | **28,478** | `0.0733s` | **28,478** | `0.0018s` | **`+0.00%`** | `-0.00%` |
-| `n200_tight_04` | 27,017 | **26,972** | `0.1127s` | **26,984** | `0.0018s` | `+0.04%` | `-0.12%` |
-| `n200_tight_05` | 27,675 | **27,675** | `0.1035s` | **27,675** | `0.0018s` | **`+0.00%`** | `+0.00%` |
-| `n200_med_01` | 26,389 | **25,370** | `7.3502s` | **25,549** | `0.0090s` | **`+0.71%`** | **`-3.18%`** |
-| `n200_med_02` | 25,610 | **24,070** | `2.8820s` | **24,312** | `0.0024s` | **`+1.01%`** | **`-5.07%`** |
-| `n200_med_03` | 28,932 | **27,936** | `3.8388s` | **28,296** | `0.4340s` | `+1.29%` | **`-2.20%`** |
-| `n200_med_04` | 26,021 | **24,454** | `2.5162s` | **24,775** | `0.0277s` | `+1.31%` | **`-4.79%`** |
-| `n200_med_05` | 26,885 | **25,185** | `4.7345s` | **25,433** | `0.0092s` | **`+0.98%`** | **`-5.40%`** |
-| `n200_wide_01` | 26,495 | `TIMEOUT` (20s) | `20.084s` | **24,149** | `0.0313s` | **Heu WIN** | **`-8.85%`** |
-| `n200_wide_02` | 27,539 | `TIMEOUT` (20s) | `20.026s` | **24,085** | `0.0874s` | **Heu WIN** | **`-12.54%`** |
-| `n200_wide_03` | 28,298 | `TIMEOUT` (20s) | `20.025s` | **25,942** | `0.0024s` | **Heu WIN** | **`-8.33%`** |
-| `n200_wide_04` | 26,968 | `TIMEOUT` (20s) | `20.029s` | **23,179** | `0.0163s` | **Heu WIN** | **`-14.05%`** |
-| `n200_wide_05` | 27,115 | `TIMEOUT` (20s) | `20.050s` | **21,706** | `0.0116s` | **Heu WIN** | **`-19.95%`** |
+| **`n10` (`01..10`)** | 10 | 4,888 | 4,869 (`10/10 OPT`) | 4,871 (`10/10`) | **4,869 (`10/10`)** | **`+0.00%`** | `-0.39%` |
+| **`n20` (`01..10`)** | 10 | 7,535 | 7,386 (`10/10 OPT`) | 7,396 (`10/10`) | **7,386 (`10/10`)** | **`+0.00%`** | `-1.98%` |
+| **`n50` (`01..10`)** | 10 | 13,714 | 13,261 (`10/10 OPT`) | 13,400 (`10/10`) | **13,261 (`10/10`)** | **`+0.00%`** | `-3.30%` |
+| **`n200_tight`** | 5 | 27,076 | 27,065 (`5/5 OPT`) | 27,069 (`5/5`) | **27,065 (`5/5`)** | **`+0.00%`** | `-0.04%` |
+| **`n200_med`** | 5 | 26,767 | 25,403 (`5/5 FEAS`) | 25,673 (`5/5`) | **25,403 (`5/5`)** | **`+0.00%`** | **`-5.10%`** |
+| **`n200_wide`** | 5 | 27,283 | `NOT_FEASIBLE` (`0/5`) | 23,812 (`5/5`) | **21,045 (`5/5`)** | **ALNS THẮNG 5/5** | **`-22.86%`** |
+| **`n500_tight`** | 5 | 42,600 | 42,515 (`4 OPT, 1 FEAS`) | 42,582 (`5/5`) | **42,515 (`5/5`)** | **`+0.00%`** | `-0.20%` |
+| **`n500_med`** | 5 | 42,818 | `NOT_FEASIBLE` (`0/5`) | 41,056 (`2/5`) | **39,970 (`5/5`)** | **ALNS THẮNG 5/5** | **`-6.65%`** |
+| **`n500_wide`** | 5 | 43,486 | `NOT_FEASIBLE` (`0/5`) | 38,607 (`3/5`) | **33,857 (`5/5`)** | **ALNS THẮNG 5/5** | **`-22.14%`** |
+| **`n1000_tight`** | 5 | 60,420 | `NOT_FEASIBLE` (`0/5`) | 60,072 (`3/5`) | **60,203 (`5/5`)** | **ALNS THẮNG 5/5** | `-0.36%` |
+| **`n1000_med`** | 5 | 60,969 | `NOT_FEASIBLE` (`0/5`) | `NO` (`0/5`) | **55,889 (`5/5`)** | **ALNS THẮNG 5/5** | **`-8.33%`** |
+| **`n1000_wide`** | 5 | 59,548 | `NOT_FEASIBLE` (`0/5`) | `NO` (`0/5`) | **46,865 (`5/5`)** | **ALNS THẮNG 5/5** | **`-21.30%`** |
 
-> **Nhận xét thực nghiệm:**
-> - **Trên 45 bài CP-SAT tìm được `OPTIMAL`:** Bước khởi tạo `Heuristic C++` giải khả thi **45/45 bài (100%)**, đạt chất lượng cách nghiệm tối ưu chỉ từ `0.0%` đến `1.06%` với tốc độ nhanh hơn từ **100 đến 1.000 lần**.
-> - **Trên 15 bài CP-SAT bị `TIMEOUT` (`n200_wide`, `n500_med`, `n500_wide`):** `Heuristic C++` giải được **10/15 bài** (trong đó giải sạch `5/5` bài `n200_wide` với chi phí giảm trung bình **`-12.74%`** so với `RefCost` chỉ trong `~0.03s`).
-> - **Tổng cộng:** Bước khởi tạo `Heuristic C++` đã giải khả thi **58/75 bài** làm nền tảng xuất phát cho thuật toán chính **ALNS**.
+> **Kết luận thực nghiệm:**
+> - **Độ chính xác:** Trên toàn bộ 45 bài toán mà `OR-Tools CP-SAT` giải được (gồm 39 nghiệm `OPTIMAL` tuyệt đối), **ALNS đạt `0.00%` Gap trên cả 45/45 bài** chỉ với `3.0s`/bài.
+> - **Khả năng mở rộng (Scalability):** Khi $N \ge 200$ với khung thời gian rộng (`wide`) hoặc $N \ge 500$ (`med`, `wide`, `n1000`), `CP-SAT` gặp bùng nổ tổ hợp ($O(N^2)$ biến cạnh) dẫn đến `NOT_FEASIBLE` sau 30 giây, trong khi **ALNS** vẫn đạt **tỷ lệ khả thi 100% (`75/75`)** và giảm chi phí tới **21%–26%** so với nghiệm tham chiếu.
 
 ---
 
-## 4. Hướng dẫn Build và Chạy chương trình
+## 5. Hướng dẫn Build và Chạy chương trình
 
-### 4.1. Build C++20 và chạy Unit Tests
+### 5.1. Build C++20 và chạy Unit Tests
 ```bash
 cmake -B build
 cmake --build build
-
-# Chạy bộ Unit Tests cho Evaluator & Generator
-./build/evaluator_test
-# hoặc:
 ctest --test-dir build --output-on-failure
 ```
 
-### 4.2. Sinh bộ dữ liệu 75 Testcases
+### 5.2. Sinh bộ dữ liệu 75 Testcases
 ```bash
 ./build/tsptw --gen
 ```
 
-### 4.3. Chạy bộ giải C++ (`heuristic` hoặc `alns`) và Benchmark
+### 5.3. Chạy bộ giải C++ (Hỗ trợ `-t` giới hạn thời gian & `-j` chạy đa luồng)
 ```bash
-# Giải 1 file lẻ và xuất ra file .out
-./build/tsptw data/input/n10_01.inp data/output/heuristic/n10_01.out heuristic
+# Giải 1 file lẻ bằng ALNS với giới hạn 5 giây (log lưu ở results/logs/last_run.log)
+./build/tsptw data/input/n1000_wide_01.inp data/output/alns/n1000_wide_01.out alns -t 5.0
 
-# Chạy benchmark với Heuristic trên 30 bộ test nhỏ / 45 bộ test lớn / toàn bộ 75 bộ test
-./build/tsptw --bench small heuristic
-./build/tsptw --bench big heuristic
+# Chạy benchmark song song toàn bộ 75 bài với ALNS (mỗi bài 3s, tự động dùng hết nhân CPU)
+./build/tsptw --bench all alns -t 3.0
+
+# Chạy benchmark với số luồng tùy chỉnh (ví dụ 8 luồng) trên 45 bài lớn
+./build/tsptw --bench big alns -t 5.0 -j 8
+
+# Chạy benchmark bằng Heuristic khởi tạo
 ./build/tsptw --bench all heuristic
-
-# Chạy benchmark với ALNS
-./build/tsptw --bench all alns
 ```
 
-### 4.4. Chạy bộ giải đối chiếu OR-Tools CP-SAT (Python)
+### 5.4. Chạy bộ giải đối chiếu OR-Tools CP-SAT (Python)
 ```bash
-# Khởi tạo môi trường ảo và cài đặt ortools (chỉ cần chạy lần đầu)
 python3 -m venv .venv
 source .venv/bin/activate
 pip install ortools
 
-# Giải 1 file lẻ (giới hạn mặc định 5s)
-.venv/bin/python src/cpsolver.py data/input/n10_01.inp
+# Giải 1 file lẻ (giới hạn 30s, 8 search workers)
+.venv/bin/python src/cpsolver.py data/input/n10_01.inp 30.0 8
 
-# Chạy benchmark 30 test nhỏ (giới hạn 2s/test)
-.venv/bin/python src/cpsolver.py --bench small 2.0
-
-# Chạy benchmark 45 test lớn (giới hạn 20s/test)
-.venv/bin/python src/cpsolver.py --bench big 20.0
+# Chạy benchmark song song toàn bộ 75 bài (30s/bài, 5 tiến trình x 3 workers)
+.venv/bin/python src/cpsolver.py --bench all 30.0 5 3
 ```

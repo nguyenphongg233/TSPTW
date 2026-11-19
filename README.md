@@ -1,28 +1,43 @@
 # TSP with Time Windows (Open-TSPTW) Solver
 
-Dự án môn **IT4663 — Tối ưu lập kế hoạch (HUST)**: Xây dựng bộ giải bài toán **Traveling Salesman Problem with Time Windows (biến thể đường đi mở - Open Route)** bằng **C++20 (Adaptive Large Neighborhood Search - ALNS)** và đối chiếu thực nghiệm với **Google OR-Tools CP-SAT**.
-
 ---
 
 ## 1. Mô tả bài toán (Open-TSPTW)
 
 - **Đỉnh xuất phát (Depot):** Mã `0`, xe xuất phát tại thời điểm $F_0 = 0$.
 - **Khách hàng:** $N$ khách hàng ($N \le 1000$), đánh số từ `1` đến `N`. Mỗi khách hàng phải được phục vụ đúng 1 lần.
-- **Thông số mỗi khách hàng $i \in \{1..N\}$:**
+- **Thông số mỗi khách hàng $i = 1, \dots, N$:**
   - $e_i$: Thời điểm sớm nhất được phép bắt đầu phục vụ.
   - $l_i$: Thời điểm muộn nhất phải **hoàn thành** phục vụ.
   - $s_i$: Thời gian phục vụ tại điểm $i$.
 - **Ma trận di chuyển:** $t_{u, v}$ kích thước $(N+1) \times (N+1)$ là thời gian/chi phí di chuyển từ điểm $u$ đến điểm $v$.
-- **Công thức lan truyền thời gian** trên tuyến đường $s = (s_1, s_2, \dots, s_N)$ với $s_0 = 0$:
-  $$\begin{aligned}
-  A_k &= F_{k-1} + t_{s_{k-1}, s_k} && \text{(Thời điểm đến khách hàng } s_k\text{)} \\
-  B_k &= \max(A_k, e_{s_k}) && \text{(Thời điểm bắt đầu phục vụ — phải chờ nếu } A_k < e_{s_k}\text{)} \\
-  F_k &= B_k + s_{s_k} && \text{(Thời điểm hoàn thành phục vụ tại } s_k\text{)}
-  \end{aligned}$$
-- **Điều kiện khả thi:** $s$ là một hoán vị của $\{1, 2, \dots, N\}$ và thỏa mãn:
-  $$F_k \le l_{s_k}, \quad \forall k \in \{1, \dots, N\}$$
-- **Hàm mục tiêu (Open Route):** Xe **không cần quay về depot `0`** sau khi phục vụ khách hàng cuối cùng $s_N$:
-  $$\min \text{travelCost} = \sum_{k=1}^{N} t_{s_{k-1}, s_k}$$
+
+**Công thức lan truyền thời gian** trên tuyến đường $s = (s_1, s_2, \dots, s_N)$ với $s_0 = 0$:
+
+$$
+\begin{aligned}
+A_k &= F_{k-1} + t_{s_{k-1}, s_k} \\
+B_k &= \max(A_k, e_{s_k}) \\
+F_k &= B_k + s_{s_k}
+\end{aligned}
+$$
+
+Trong đó:
+- $A_k$: Thời điểm đến khách hàng $s_k$.
+- $B_k$: Thời điểm bắt đầu phục vụ (nếu $A_k < e_{s_k}$ xe phải chờ đến $e_{s_k}$).
+- $F_k$: Thời điểm hoàn thành phục vụ tại $s_k$.
+
+**Điều kiện khả thi:** $s$ là một hoán vị của $1, 2, \dots, N$ và thỏa mãn:
+
+$$
+F_k \le l_{s_k}, \quad \forall k = 1, \dots, N
+$$
+
+**Hàm mục tiêu (Open Route):** Xe **không cần quay về depot `0`** sau khi phục vụ khách hàng cuối cùng $s_N$:
+
+$$
+\min \text{travelCost} = \sum_{k=1}^{N} t_{s_{k-1}, s_k}
+$$
 
 ---
 

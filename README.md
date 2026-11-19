@@ -43,7 +43,7 @@ $$
 
 ## 2. Thiết kế thuật toán ALNS hiện tại
 
-Thuật toán **Adaptive Large Neighborhood Search (ALNS)** được cài đặt trong [include/alns.hpp](file:///Users/nguyenphong/HUST/2026.1/IT4663_TULKH/TSPTW/include/alns.hpp) và [src/alns.cpp](file:///Users/nguyenphong/HUST/2026.1/IT4663_TULKH/TSPTW/src/alns.cpp) theo quy trình 4 thành phần:
+Thuật toán **Adaptive Large Neighborhood Search (ALNS)** được cài đặt trong [`include/alns.hpp`](include/alns.hpp) và [`src/alns.cpp`](src/alns.cpp) theo quy trình 4 thành phần:
 
 ### 2.1. Khởi tạo nghiệm ban đầu (`buildInitialSolution`)
 - Kết hợp **Lookahead Nearest Feasible Neighbor** (ưu tiên các đỉnh không làm trễ hạn 25 đỉnh gấp nhất) và **Randomized Multi-Start Greedy Insertion** (xếp theo $l_i$, $(e_i+l_i)/2$, $e_i+s_i$ kèm nhiễu ngẫu nhiên và Ejection Repair).

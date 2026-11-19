@@ -1,3 +1,6 @@
 docs/
 build/
+data/
+results/
 .DS_Store
+

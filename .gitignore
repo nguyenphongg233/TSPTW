@@ -1,8 +1,8 @@
 docs/
 build/
 data/
-results/
 .venv/
 .DS_Store
+
 
 

@@ -1,4 +1,5 @@
 #include "evaluator.hpp"
+#include "heuristic.hpp"
 #include "problem.hpp"
 #include "solution.hpp"
 #include "utils.hpp"
@@ -9,20 +10,18 @@
 #include <string>
 #include <vector>
 
-// Hàm giải 1 bài toán (nơi bạn gắn Heuristic / Local Search / ALNS vào)
-Solution solveInstance(const Problem& problem) {
-    // TODO: Thay bằng hàm Heuristic / ALNS khi cài đặt ở bước tiếp theo
-    Solution sol(problem.n);
-    for (int i = 0; i < problem.n; i++) {
-        sol.route[i] = i + 1;
+// Giải 1 bài toán theo tên thuật toán ("heuristic" hoặc "alns")
+Solution solveInstance(const Problem& problem, const std::string& solverName = "heuristic") {
+    if (solverName == "heuristic") {
+        return buildInitialSolution(problem);
     }
-    evaluateSolution(problem, sol);
-    return sol;
+    // Mặc định hoặc khi chọn "alns" (tạm thời khởi tạo bằng buildInitialSolution, sẽ gắn solveALNS ở bước tiếp theo)
+    return buildInitialSolution(problem);
 }
 
-void benchmark(const std::string& mode = "all") {
+void benchmark(const std::string& mode = "all", const std::string& solverName = "heuristic") {
     std::string inDir = "data/input/";
-    std::string outDir = "data/output/alns/";
+    std::string outDir = "data/output/" + solverName + "/";
     std::string resDir = "results/";
 
     std::filesystem::create_directories(outDir);
@@ -61,10 +60,11 @@ void benchmark(const std::string& mode = "all") {
         }
     }
 
-    std::string csvPath = resDir + "benchmark_results.csv";
+    std::string csvPath = resDir + solverName + "_benchmark_results.csv";
     std::ofstream csvOut(csvPath);
     csvOut << "instance,n,group,feasible,travel_cost,completion_time,runtime_sec\n";
 
+    std::cout << "[Benchmark] Solver: " << solverName << " | Mode: " << mode << "\n";
     std::cout << std::left
               << std::setw(22) << "Instance"
               << std::setw(8)  << "N"
@@ -91,16 +91,18 @@ void benchmark(const std::string& mode = "all") {
         }
 
         Timer timer;
-        Solution sol = solveInstance(problem);
+        Solution sol = solveInstance(problem, solverName);
         double elapsed = timer.elapsedSeconds();
 
         // Chấm lại bằng Evaluator đầy đủ (check cả hoán vị lẫn time window)
         evaluateSolution(problem, sol, true);
 
-        // Ghi file .out
-        std::ofstream outFile(outPath);
-        if (outFile.is_open()) {
-            sol.print(outFile);
+        // Chỉ ghi file .out khi nghiệm khả thi (không ghi nghiệm lỗi 0 0 0...)
+        if (sol.feasible) {
+            std::ofstream outFile(outPath);
+            if (outFile.is_open()) {
+                sol.print(outFile);
+            }
         }
 
         totalCases++;
@@ -132,7 +134,8 @@ void benchmark(const std::string& mode = "all") {
     std::cout << "[Summary] Feasible: " << feasibleCases << "/" << totalCases
               << " | Avg Feasible Cost: " << (feasibleCases > 0 ? sumFeasibleCost / feasibleCases : 0)
               << " | Total Time: " << std::fixed << std::setprecision(4) << totalTime << "s\n";
-    std::cout << "[Saved]   CSV results written to '" << csvPath << "'\n";
+    std::cout << "[Saved]   Routes  -> '" << outDir << "'\n";
+    std::cout << "[Saved]   CSV     -> '" << csvPath << "'\n";
 }
 
 int main(int argc, char* argv[]) {
@@ -149,19 +152,21 @@ int main(int argc, char* argv[]) {
 
     if (argc >= 2 && std::string(argv[1]) == "--bench") {
         std::string mode = (argc >= 3) ? argv[2] : "all";
-        benchmark(mode);
+        std::string solverName = (argc >= 4) ? argv[3] : "heuristic";
+        benchmark(mode, solverName);
         return 0;
     }
 
     if (argc < 2) {
         std::cerr << "Usage:\n"
                   << "  1. Generate dataset: " << argv[0] << " --gen [output_dir]\n"
-                  << "  2. Run benchmark:    " << argv[0] << " --bench [all|small|big]\n"
-                  << "  3. Solve instance:   " << argv[0] << " <input.inp> [output.out]\n";
+                  << "  2. Run benchmark:    " << argv[0] << " --bench [all|small|big] [heuristic|alns]\n"
+                  << "  3. Solve instance:   " << argv[0] << " <input.inp> [output.out] [heuristic|alns]\n";
         return 1;
     }
 
     std::string inputFile = argv[1];
+    std::string solverName = (argc >= 4) ? argv[3] : "heuristic";
     Timer timer;
 
     Problem problem;
@@ -172,7 +177,7 @@ int main(int argc, char* argv[]) {
     std::cerr << "[Info] Loaded N = " << problem.n << " from '" << inputFile
               << "' in " << timer.elapsedSeconds() << "s\n";
 
-    Solution sol = solveInstance(problem);
+    Solution sol = solveInstance(problem, solverName);
     sol.debug();
 
     if (argc >= 3) {
